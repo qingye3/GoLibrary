@@ -1,0 +1,24 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:context=".MainActivity$PlaceholderFragment">
+
+    <ListView
+            android:id="@+id/alarm_list"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" />
+    
+    <ImageButton
+            android:id="@+id/add_button"
+            android:layout_width="@dimen/round_button_diameter"
+            android:layout_height="@dimen/round_button_diameter"
+            android:layout_gravity="end|bottom"
+            android:layout_marginBottom="@dimen/add_button_margin"
+            android:layout_marginEnd="@dimen/add_button_margin"
+            android:src="@android:drawable/ic_input_add"
+            android:tint="@android:color/white"
+            android:background="@drawable/oval"
+            android:elevation="@dimen/elevation_low"
+            />
+</FrameLayout>
