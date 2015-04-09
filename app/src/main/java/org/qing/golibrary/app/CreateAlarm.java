@@ -1,42 +1,24 @@
 package org.qing.golibrary.app;
 
-import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
+import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import org.qing.golibrary.app.database.AlarmDataSource;
-import org.qing.golibrary.app.fragments.ViewAlarmsFragment;
-
-import java.sql.SQLException;
 
 
-public class MainActivity extends ActionBarActivity {
-    private static final String TAG = "MainActivity";
-    private AlarmDataSource alarmDataSource;
+public class CreateAlarm extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        alarmDataSource = new AlarmDataSource(MainActivity.this);
-        try{
-            alarmDataSource.open();
-        } catch (SQLException e){
-            Log.d(TAG, e.getMessage());
-        }
-        setContentView(R.layout.activity_main);
-        if (savedInstanceState == null) {
-            getFragmentManager().beginTransaction()
-                    .add(R.id.container, new ViewAlarmsFragment())
-                    .commit();
-        }
+        setContentView(R.layout.activity_create_alarm);
     }
 
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.menu_create_alarm, menu);
         return true;
     }
 
