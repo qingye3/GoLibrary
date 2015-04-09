@@ -5,6 +5,8 @@ import java.util.HashMap;
 
 public class Alarm {
     private int id;
+    private int hour;
+    private int mintue;
     private HashMap<DayInWeek, Boolean> repeatDays;
     private String description;
     private Date endDate;
@@ -46,5 +48,21 @@ public class Alarm {
 
     public void setDayRepeat(DayInWeek day, Boolean isRepeat){
         repeatDays.put(day, isRepeat);
+    }
+
+    public int getHour() {
+        return hour;
+    }
+
+    public void setHour(int hour) {
+        this.hour = hour;
+    }
+
+    public int getMintue() {
+        return mintue;
+    }
+
+    public void setMintue(int mintue) {
+        this.mintue = mintue;
     }
 }

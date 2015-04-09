@@ -3,4 +3,10 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_create_alarm">New study session</string>
+    <string name="accept">Accept</string>
+    <string name="cancel">Cancel</string>
+    <string name="time">Time</string>
+    <string name="repeat">Repeat</string>
+    <string name="endDate">End Date</string>
+    <string name="description">Description</string>
 </resources>

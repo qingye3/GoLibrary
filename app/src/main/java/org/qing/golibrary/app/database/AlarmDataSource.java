@@ -18,7 +18,7 @@ public class AlarmDataSource {
     private SQLiteDatabase database;
     private static final String TABLENAME = "alarms";
     private static final String TAG = "AlarmDataSource";
-    private static final String[] COLUMNS = {"alarm_id", "description", "repeat_mon",  "repeat_tue",  "repeat_wed",
+    private static final String[] COLUMNS = {"alarm_id", "hour", "minute", "description", "repeat_mon",  "repeat_tue",  "repeat_wed",
             "repeat_thr",  "repeat_fri",  "repeat_sat",  "repeat_sun", "end_date"};
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-DD", Locale.US);
 
@@ -45,6 +45,8 @@ public class AlarmDataSource {
     public void createAlarm(Alarm alarm) {
         ContentValues values = new ContentValues();
         values.put("description", alarm.getDescription());
+        values.put("hour", alarm.getHour());
+        values.put("minute", alarm.getMintue());
         values.put("repeat_mon", alarm.isDayRepeat(DayInWeek.MONDAY));
         values.put("repeat_tue", alarm.isDayRepeat(DayInWeek.TUESDAY));
         values.put("repeat_wed", alarm.isDayRepeat(DayInWeek.WEDNESDAY));
@@ -65,16 +67,18 @@ public class AlarmDataSource {
         while(!cursor.isAfterLast()){
             Alarm alarm = new Alarm();
             alarm.setId(cursor.getInt(0));
-            alarm.setDescription(cursor.getString(1));
-            alarm.setDayRepeat(DayInWeek.MONDAY, cursor.getInt(2) > 0);
-            alarm.setDayRepeat(DayInWeek.TUESDAY, cursor.getInt(3) > 0);
-            alarm.setDayRepeat(DayInWeek.WEDNESDAY, cursor.getInt(4) > 0);
-            alarm.setDayRepeat(DayInWeek.THURSDAY, cursor.getInt(5) > 0);
-            alarm.setDayRepeat(DayInWeek.FRIDAY, cursor.getInt(6) > 0);
-            alarm.setDayRepeat(DayInWeek.SATURDAY, cursor.getInt(7) > 0);
-            alarm.setDayRepeat(DayInWeek.SUNDAY, cursor.getInt(8) > 0);
+            alarm.setHour(cursor.getInt(1));
+            alarm.setMintue(cursor.getInt(2));
+            alarm.setDescription(cursor.getString(3));
+            alarm.setDayRepeat(DayInWeek.MONDAY, cursor.getInt(4) > 0);
+            alarm.setDayRepeat(DayInWeek.TUESDAY, cursor.getInt(5) > 0);
+            alarm.setDayRepeat(DayInWeek.WEDNESDAY, cursor.getInt(6) > 0);
+            alarm.setDayRepeat(DayInWeek.THURSDAY, cursor.getInt(7) > 0);
+            alarm.setDayRepeat(DayInWeek.FRIDAY, cursor.getInt(8) > 0);
+            alarm.setDayRepeat(DayInWeek.SATURDAY, cursor.getInt(9) > 0);
+            alarm.setDayRepeat(DayInWeek.SUNDAY, cursor.getInt(10) > 0);
             try {
-                alarm.setEndDate(dateFormat.parse(cursor.getString(9)));
+                alarm.setEndDate(dateFormat.parse(cursor.getString(11)));
             } catch (ParseException e) {
                 Log.d(TAG, e.getMessage());
                 e.printStackTrace();
