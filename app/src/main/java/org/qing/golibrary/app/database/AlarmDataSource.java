@@ -20,7 +20,7 @@ public class AlarmDataSource {
     private static final String TAG = "AlarmDataSource";
     private static final String[] COLUMNS = {"alarm_id", "hour", "minute", "description", "repeat_mon",  "repeat_tue",  "repeat_wed",
             "repeat_thr",  "repeat_fri",  "repeat_sat",  "repeat_sun", "end_date"};
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-DD", Locale.US);
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 
     public AlarmDataSource(Context context) {
         dbHelper = new DatabaseHelper(context);
