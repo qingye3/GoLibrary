@@ -12,6 +12,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Locale;
 
+/**
+ * The Datasource. All interaction with the database should be done through the datasource
+ */
 public class AlarmDataSource {
     private DatabaseHelper dbHelper;
     private SQLiteDatabase database;
@@ -57,6 +60,10 @@ public class AlarmDataSource {
         database.insert(TABLENAME, null, values);  // don't the the null time hack lol
     }
 
+    /**
+     * return all alarms in the SQLite DB
+     * @return all alarms in an ArrayList
+     */
     public ArrayList<Alarm> getAlarms(){
         Cursor cursor = database.query(TABLENAME, COLUMNS, null,
                 null, null, null, null);
@@ -89,6 +96,10 @@ public class AlarmDataSource {
         return alarms;
     }
 
+    /**
+     * remove an alarm matching the id
+     * @param id the id to match
+     */
     public void removeAlarm(int id){
         database.delete(TABLENAME, "alarm_id" + "=" + String.valueOf(id), null);
     }

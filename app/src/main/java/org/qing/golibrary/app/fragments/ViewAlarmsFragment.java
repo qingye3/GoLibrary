@@ -52,6 +52,8 @@ public class ViewAlarmsFragment extends Fragment {
             }
         });
         datasource = new AlarmDataSource(this.getActivity().getApplicationContext());
+
+        //creating the adapter and attach the listView to it
         adapter = new AlarmListAdapter(this.getActivity(), R.layout.alarm_item_row, new ArrayList<Alarm>());
         ListView listView = (ListView) rootView.findViewById(R.id.alarm_list);
         listView.setAdapter(adapter);
@@ -59,6 +61,9 @@ public class ViewAlarmsFragment extends Fragment {
         return rootView;
     }
 
+    /**
+     * updates the adapter using the datasource. Also modify the view.
+     */
     private void update() {
         try{
             datasource.open();
@@ -74,6 +79,10 @@ public class ViewAlarmsFragment extends Fragment {
         adapter.notifyDataSetChanged();
     }
 
+    /**
+     * remove an alarm from the database
+     * @param id
+     */
     public void removeAlarm(int id){
         try{
             datasource.open();
@@ -84,6 +93,10 @@ public class ViewAlarmsFragment extends Fragment {
         update();
     }
 
+    /**
+     * The ListAdapter. By convention, adapters are inner classes.
+     * This is not a static class because we need to call the removeAlarm function
+     */
     public class AlarmListAdapter extends ArrayAdapter<Alarm> {
         Context context;
         int layoutResourceId;
@@ -95,6 +108,9 @@ public class ViewAlarmsFragment extends Fragment {
         }
 
 
+        /**
+         * Returns a the view representing the row inside the listView
+         */
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             View row = convertView;

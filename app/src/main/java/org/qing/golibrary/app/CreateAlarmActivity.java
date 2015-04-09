@@ -47,6 +47,10 @@ public class CreateAlarmActivity extends ActionBarActivity implements
         boundLabelActions();
     }
 
+    /**
+     * Set the OnClickListeners of the labels. Bounding the actions to the labels because the labels
+     * are not in a listView.
+     */
     private void boundLabelActions() {
         TextView timeLabel = (TextView) findViewById(R.id.timeLabel);
         timeLabel.setOnClickListener(new View.OnClickListener() {
@@ -77,6 +81,9 @@ public class CreateAlarmActivity extends ActionBarActivity implements
 
     }
 
+    /**
+     * Updating the text fields using the alarm
+     */
     private void initTextFields() {
         SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
         txtTime.setText(String.format("%02d:%02d",alarm.getHour() ,alarm.getMinute()));
@@ -85,6 +92,9 @@ public class CreateAlarmActivity extends ActionBarActivity implements
     }
 
 
+    /**
+     * Creating a default alarm. The time is default to the current time.
+     */
     private void initDefaultAlarm() {
         Calendar c = Calendar.getInstance();
         alarm = new Alarm();
@@ -119,6 +129,9 @@ public class CreateAlarmActivity extends ActionBarActivity implements
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Save the alarm to the database
+     */
     private void saveAlarm() {
         AlarmDataSource alarmDataSource = new AlarmDataSource(CreateAlarmActivity.this);
         try{

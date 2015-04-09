@@ -16,6 +16,10 @@ import org.qing.golibrary.app.database.DayInWeek;
 import java.util.HashMap;
 
 public class RepeatPickerFragment extends DialogFragment {
+
+    /**
+     * creating the dialog.
+     */
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -32,6 +36,11 @@ public class RepeatPickerFragment extends DialogFragment {
         return builder.create();
     }
 
+    /**
+     * Get the repetition hashmap as in the Alarm model
+     * @param view the view containing the checkboxes
+     * @return the HashMap
+     */
     private HashMap<DayInWeek,Boolean> getRepeat(View view) {
         HashMap<DayInWeek, Boolean> repeat = new HashMap<DayInWeek, Boolean>();
         CheckBox sunday = (CheckBox) view.findViewById(R.id.sunday);
@@ -51,6 +60,9 @@ public class RepeatPickerFragment extends DialogFragment {
         return repeat;
     }
 
+    /**
+     * On attach set mListener to the calling activity
+     */
     @Override
     public void onAttach(Activity activity){
         super.onAttach(activity);
@@ -59,6 +71,9 @@ public class RepeatPickerFragment extends DialogFragment {
 
     OnRepeatPickedListener mListener;
 
+    /**
+     * Task to do after picking the date
+     */
     public interface OnRepeatPickedListener{
         void onRepeatPicked(HashMap<DayInWeek, Boolean> repeat);
     }

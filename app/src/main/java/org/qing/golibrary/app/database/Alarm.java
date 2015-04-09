@@ -3,6 +3,9 @@ package org.qing.golibrary.app.database;
 import java.util.Date;
 import java.util.HashMap;
 
+/**
+ * Model for alarm
+ */
 public class Alarm {
     private int id;
     private int hour;

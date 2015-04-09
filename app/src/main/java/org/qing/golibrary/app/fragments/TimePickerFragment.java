@@ -10,13 +10,13 @@ import android.widget.TimePicker;
 
 import java.util.Calendar;
 
-/**
- * Modified from the google example
- * http://developer.android.com/guide/topics/ui/controls/pickers.html
- */
 public class TimePickerFragment extends DialogFragment
         implements TimePickerDialog.OnTimeSetListener {
 
+    /**
+     * Modified from the google example
+     * http://developer.android.com/guide/topics/ui/controls/pickers.html
+     */
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         final Calendar c = Calendar.getInstance();
@@ -31,6 +31,9 @@ public class TimePickerFragment extends DialogFragment
         mListener.onTimePicked(hourOfDay, minute);
     }
 
+    /**
+     * Set the mListener to the calling activity
+     */
     @Override
     public void onAttach(Activity activity){
         super.onAttach(activity);
@@ -39,6 +42,9 @@ public class TimePickerFragment extends DialogFragment
 
     private OnTimePickedListener mListener;
 
+    /**
+     * Task to do after picking the time
+     */
     public interface OnTimePickedListener {
         void onTimePicked(int hour, int minute);
     }

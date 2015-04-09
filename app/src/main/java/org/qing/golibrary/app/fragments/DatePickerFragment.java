@@ -9,9 +9,17 @@ import android.widget.DatePicker;
 
 import java.util.Calendar;
 
+/**
+ * Date picker
+ */
 public class DatePickerFragment extends DialogFragment
         implements DatePickerDialog.OnDateSetListener {
 
+    /**
+     * Modified from the example on the google developer website
+     * @param savedInstanceState savedInstanceState
+     * @return the dialog
+     */
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         // Use the current date as the default date in the picker
@@ -28,6 +36,10 @@ public class DatePickerFragment extends DialogFragment
         mListener.onDatePicked(year, month, day);
     }
 
+    /**
+     * Set the listener to the calling activity
+     * @param activity the activity to attach to
+     */
     @Override
     public void onAttach(Activity activity){
         super.onAttach(activity);
@@ -36,6 +48,9 @@ public class DatePickerFragment extends DialogFragment
 
     private OnDatePickedListener mListener;
 
+    /**
+     * Task to do after picking the date
+     */
     public interface OnDatePickedListener{
         void onDatePicked(int year, int month, int date);
     }
