@@ -2,33 +2,37 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="50dp"
     android:weightSum="1">
 
     <TextView
         android:id="@+id/time_text"
+        android:text="time_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true"
-        android:layout_above="@+id/days_text" />
+        />
 
     <TextView
         android:id="@+id/days_text"
+        android:text="days"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:layout_below="@+id/remove_button"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_toStartOf="@+id/remove_button"/>
 
     <ImageButton
         android:id="@+id/remove_button"
-        android:layout_width="@dimen/round_button_diameter"
-        android:layout_height="@dimen/round_button_diameter"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:scaleType="fitCenter"
         android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
-        android:src="@android:drawable/ic_delete"
+        android:src="@drawable/ic_action_delete"
         android:tint="@android:color/white"
-        android:background="@drawable/oval" />
+        android:background="@drawable/square" />
 </RelativeLayout>
