@@ -10,7 +10,6 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Currency;
 import java.util.Locale;
 
 public class AlarmDataSource {
@@ -46,7 +45,7 @@ public class AlarmDataSource {
         ContentValues values = new ContentValues();
         values.put("description", alarm.getDescription());
         values.put("hour", alarm.getHour());
-        values.put("minute", alarm.getMintue());
+        values.put("minute", alarm.getMinute());
         values.put("repeat_mon", alarm.isDayRepeat(DayInWeek.MONDAY));
         values.put("repeat_tue", alarm.isDayRepeat(DayInWeek.TUESDAY));
         values.put("repeat_wed", alarm.isDayRepeat(DayInWeek.WEDNESDAY));
@@ -68,7 +67,7 @@ public class AlarmDataSource {
             Alarm alarm = new Alarm();
             alarm.setId(cursor.getInt(0));
             alarm.setHour(cursor.getInt(1));
-            alarm.setMintue(cursor.getInt(2));
+            alarm.setMinute(cursor.getInt(2));
             alarm.setDescription(cursor.getString(3));
             alarm.setDayRepeat(DayInWeek.MONDAY, cursor.getInt(4) > 0);
             alarm.setDayRepeat(DayInWeek.TUESDAY, cursor.getInt(5) > 0);
@@ -84,6 +83,7 @@ public class AlarmDataSource {
                 e.printStackTrace();
             }
             alarms.add(alarm);
+            cursor.moveToNext();
         }
         cursor.close();
         return alarms;

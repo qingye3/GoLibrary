@@ -1,23 +1,22 @@
 package org.qing.golibrary.app;
 
-import android.app.Activity;
-import android.app.Dialog;
 import android.app.DialogFragment;
-import android.app.TimePickerDialog;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import org.qing.golibrary.app.database.Alarm;
+import org.qing.golibrary.app.database.AlarmDataSource;
 import org.qing.golibrary.app.database.DayInWeek;
 import org.qing.golibrary.app.fragments.DatePickerFragment;
 import org.qing.golibrary.app.fragments.RepeatPickerFragment;
 import org.qing.golibrary.app.fragments.TimePickerFragment;
 
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -28,6 +27,7 @@ public class CreateAlarmActivity extends ActionBarActivity implements
         TimePickerFragment.OnTimePickedListener,
         DatePickerFragment.OnDatePickedListener ,
         RepeatPickerFragment.OnRepeatPickedListener{
+    private static final String TAG = "CreateAlarm";
     private Alarm alarm;
     TextView txtTime;
     TextView txtRepeat;
@@ -79,29 +79,17 @@ public class CreateAlarmActivity extends ActionBarActivity implements
 
     private void initTextFields() {
         SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-        txtTime.setText(String.format("%02d:%02d",alarm.getHour() ,alarm.getMintue()));
-        txtRepeat.setText(getRepeatString());
+        txtTime.setText(String.format("%02d:%02d",alarm.getHour() ,alarm.getMinute()));
+        txtRepeat.setText(alarm.getRepeatString());
         txtEndDate.setText(dateFormat.format(alarm.getEndDate()));
     }
 
-    private String getRepeatString() {
-        String retStr = "";
-        for (DayInWeek day : DayInWeek.values()){
-            if (alarm.isDayRepeat(day)){
-                retStr += day.toString() + ". ";
-            }
-        }
-        if (retStr.equals("")){
-            retStr = "No repeats";
-        }
-        return retStr;
-    }
 
     private void initDefaultAlarm() {
         Calendar c = Calendar.getInstance();
         alarm = new Alarm();
         alarm.setHour(c.get(Calendar.HOUR_OF_DAY));
-        alarm.setMintue(c.get(Calendar.MINUTE));
+        alarm.setMinute(c.get(Calendar.MINUTE));
         alarm.setEndDate(c.getTime());
     }
 
@@ -117,19 +105,35 @@ public class CreateAlarmActivity extends ActionBarActivity implements
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (id){
+            case R.id.action_accept:
+                EditText editText = (EditText) findViewById(R.id.description);
+                alarm.setDescription(editText.getText().toString());
+                saveAlarm();
+                finish();
+                break;
+            case R.id.action_cancel:
+                finish();
+                break;
         }
-
         return super.onOptionsItemSelected(item);
+    }
+
+    private void saveAlarm() {
+        AlarmDataSource alarmDataSource = new AlarmDataSource(CreateAlarmActivity.this);
+        try{
+            alarmDataSource.open();
+        } catch (SQLException e){
+            Log.d(TAG, e.getMessage());
+        }
+        alarmDataSource.createAlarm(alarm);
+        alarmDataSource.close();
     }
 
     @Override
     public void onTimePicked(int hour, int minute) {
         alarm.setHour(hour);
-        alarm.setMintue(minute);
+        alarm.setMinute(minute);
         initTextFields();
     }
 

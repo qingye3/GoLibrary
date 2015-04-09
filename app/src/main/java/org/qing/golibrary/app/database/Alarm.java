@@ -6,7 +6,7 @@ import java.util.HashMap;
 public class Alarm {
     private int id;
     private int hour;
-    private int mintue;
+    private int minute;
     private HashMap<DayInWeek, Boolean> repeatDays;
     private String description;
     private Date endDate;
@@ -58,11 +58,24 @@ public class Alarm {
         this.hour = hour;
     }
 
-    public int getMintue() {
-        return mintue;
+    public int getMinute() {
+        return minute;
     }
 
-    public void setMintue(int mintue) {
-        this.mintue = mintue;
+    public void setMinute(int minute) {
+        this.minute = minute;
+    }
+
+    public String getRepeatString() {
+        String retStr = "";
+        for (DayInWeek day : DayInWeek.values()){
+            if (isDayRepeat(day)){
+                retStr += day.toString() + ". ";
+            }
+        }
+        if (retStr.equals("")){
+            retStr = "No repeats";
+        }
+        return retStr;
     }
 }
