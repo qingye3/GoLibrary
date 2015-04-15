@@ -28,6 +28,7 @@ public class CreateAlarmActivity extends ActionBarActivity implements
         DatePickerFragment.OnDatePickedListener ,
         RepeatPickerFragment.OnRepeatPickedListener{
     private static final String TAG = "CreateAlarm";
+    private AlarmReceiver alarmReceiver;
     private Alarm alarm;
     TextView txtTime;
     TextView txtRepeat;
@@ -39,9 +40,11 @@ public class CreateAlarmActivity extends ActionBarActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_alarm);
 
+        alarmReceiver = new AlarmReceiver();
         txtTime = (TextView) findViewById(R.id.time);
         txtRepeat = (TextView) findViewById(R.id.repeat);
         txtEndDate = (TextView) findViewById(R.id.endDate);
+
         initDefaultAlarm();
         initTextFields();
         boundLabelActions();
@@ -120,6 +123,7 @@ public class CreateAlarmActivity extends ActionBarActivity implements
                 EditText editText = (EditText) findViewById(R.id.description);
                 alarm.setDescription(editText.getText().toString());
                 saveAlarm();
+                setupAlarmManager();
                 finish();
                 break;
             case R.id.action_cancel:
@@ -127,6 +131,15 @@ public class CreateAlarmActivity extends ActionBarActivity implements
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void setupAlarmManager() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.set(Calendar.HOUR_OF_DAY, alarm.getHour());
+        calendar.set(Calendar.MINUTE, alarm.getMinute());
+        calendar.set(Calendar.SECOND, 0);
+        alarmReceiver.setAlarm(this, calendar);
     }
 
     /**
