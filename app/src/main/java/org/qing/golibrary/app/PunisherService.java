@@ -70,14 +70,14 @@ public class PunisherService extends IntentService implements
 
     }
 
-    private void sendNotification(String message) {
+    private void sendNotification(String title, String message) {
         NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0);
         Uri sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
         NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(this)
-                        .setContentTitle("PUNISHMENT TIME")
+                        .setContentTitle(title)
                         .setSmallIcon(R.drawable.ic_action_accept)
                         .setSound(sound)
                         .setStyle(new NotificationCompat.BigTextStyle().bigText(message))
@@ -115,11 +115,12 @@ public class PunisherService extends IntentService implements
                     minDist = libLocation.distanceTo(location);
                 }
             }
-            String additionalInformation = "I will punish you";
             if (minDist < 120){
-                additionalInformation = "I will not punish you";
+                sendNotification("I will not punish you!", "Nearest library is " + minDist + " meters away.");
+            } else {
+                sendNotification("You will be punished!", "Nearest library is " + minDist + " meters away.");
             }
-            sendNotification("Nearest library is " + minDist + " meters away." + additionalInformation);
+
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
             AlarmReceiver.completeWakefulIntent(mIntent);
         } else {
