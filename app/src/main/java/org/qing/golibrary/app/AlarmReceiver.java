@@ -23,6 +23,9 @@ public class AlarmReceiver extends WakefulBroadcastReceiver{
     public AlarmReceiver() {
     }
 
+    /**
+     * Upon receiving an alarm, start the punisher service
+     */
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.d(TAG, "Received alarm");
@@ -30,11 +33,15 @@ public class AlarmReceiver extends WakefulBroadcastReceiver{
         startWakefulService(context, service);
     }
 
+    /**
+     * Setting a RTC alarm using the alarm object
+     */
     public void setAlarm(Context context, Alarm alarm){
         Log.d(TAG, "Setting alarm" + alarm.getId());
 
         Calendar calendar = getCalendarFromAlarm(alarm);
 
+        //Using the id of the alarm as the id of the RTC alarm
         Intent intent = new Intent(context, AlarmReceiver.class);
         PendingIntent alarmIntent = PendingIntent.getBroadcast(context, alarm.getId(), intent, 0);
 
@@ -43,12 +50,14 @@ public class AlarmReceiver extends WakefulBroadcastReceiver{
 
         ComponentName receiver = new ComponentName(context, AlarmReceiver.class);
         PackageManager pm = context.getPackageManager();
-
         pm.setComponentEnabledSetting(receiver,
                 PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
                 PackageManager.DONT_KILL_APP);
     }
 
+    /**
+     * Convert the time of the alarm to a calendar object
+     */
     private Calendar getCalendarFromAlarm(Alarm alarm) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(alarm.getStartDate());
@@ -58,6 +67,9 @@ public class AlarmReceiver extends WakefulBroadcastReceiver{
         return calendar;
     }
 
+    /**
+     * Cancel an alarm with matching alarm id
+     */
     public void cancelAlarm(Context context, Alarm alarm){
         Intent intent = new Intent(context, AlarmReceiver.class);
         PendingIntent alarmIntent = PendingIntent.getBroadcast(context, alarm.getId(), intent, 0);

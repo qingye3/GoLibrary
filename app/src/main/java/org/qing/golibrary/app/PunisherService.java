@@ -103,30 +103,39 @@ public class PunisherService extends IntentService implements
 
     }
 
+    /**
+     * Handle location change by the fused location api
+     * @param location the new location
+     */
     @Override
     public void onLocationChanged(Location location) {
         if (location!= null){
+            //Reject a location if the accuracy is less than 25 meter
             if (location.getAccuracy() > 25){
                 return;
             }
+
+            //Calculate distance to the nearest library
             float minDist = Float.MAX_VALUE;
             for (Location libLocation : libraryLocations){
                 if (libLocation.distanceTo(location) < minDist){
                     minDist = libLocation.distanceTo(location);
                 }
             }
+
             if (minDist < 120){
                 sendNotification("I will not punish you!", "Nearest library is " + minDist + " meters away.");
             } else {
                 sendNotification("You will be punished!", "Nearest library is " + minDist + " meters away.");
             }
-
-            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-            AlarmReceiver.completeWakefulIntent(mIntent);
         } else {
             Log.d(TAG, "Failed to get a location");
-            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-            AlarmReceiver.completeWakefulIntent(mIntent);
         }
+
+        //We don't need location any more, turn off location service
+        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+
+        //Release the lock so the receiver can go to sleep now
+        AlarmReceiver.completeWakefulIntent(mIntent);
     }
 }

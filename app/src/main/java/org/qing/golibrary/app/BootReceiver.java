@@ -16,6 +16,10 @@ import java.sql.SQLException;
 public class BootReceiver extends BroadcastReceiver {
     static final String TAG = "BootReceiver";
     Context mContext;
+
+    /**
+     * Upon boot, schedule all alarm turned off by the shutdown
+     */
     @Override
     public void onReceive(Context context, Intent intent) {
 
