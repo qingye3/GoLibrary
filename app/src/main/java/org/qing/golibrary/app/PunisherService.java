@@ -5,13 +5,29 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 
-public class PunisherService extends IntentService {
+import java.util.ArrayList;
+
+public class PunisherService extends IntentService implements
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
+        LocationListener{
+    private ArrayList<Location> libraryLocations;
     private static final String TAG = "PunisherSer";
+    private GoogleApiClient mGoogleApiClient;
+    private Intent mIntent;
+    private LocationRequest mLocationRequest;
 
     public PunisherService() {
         super("PunisherService");
@@ -20,8 +36,38 @@ public class PunisherService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         Log.d(TAG, "punisher service started");
-        sendNotification("I am the punisher!");
-        AlarmReceiver.completeWakefulIntent(intent);
+        createLocationRequest();
+        createLibraryLocations();
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+        mIntent = intent;
+        mGoogleApiClient.blockingConnect();
+    }
+
+    private void createLibraryLocations() {
+        libraryLocations = new ArrayList<Location>();
+        Location location = new Location("map");
+
+        //Grainger Library
+        location.setLatitude(40.112433);
+        location.setLongitude(-88.22687);
+        libraryLocations.add(location);
+
+        //Siebel Center
+        location.setLatitude(40.113877);
+        location.setLongitude(-88.224886);
+        libraryLocations.add(location);
+    }
+
+    private void createLocationRequest() {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(2000);
+        mLocationRequest.setFastestInterval(2000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
     }
 
     private void sendNotification(String message) {
@@ -38,5 +84,48 @@ public class PunisherService extends IntentService {
                         .setContentText(message);
         builder.setContentIntent(contentIntent);
         notificationManager.notify(1, builder.build());
+    }
+    protected synchronized void buildGoogleApiClient(){
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        if (location!= null){
+            if (location.getAccuracy() > 25){
+                return;
+            }
+            float minDist = Float.MAX_VALUE;
+            for (Location libLocation : libraryLocations){
+                if (libLocation.distanceTo(location) < minDist){
+                    minDist = libLocation.distanceTo(location);
+                }
+            }
+            String additionalInformation = "I will punish you";
+            if (minDist < 120){
+                additionalInformation = "I will not punish you";
+            }
+            sendNotification("Nearest library is " + minDist + " meters away." + additionalInformation);
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+            AlarmReceiver.completeWakefulIntent(mIntent);
+        } else {
+            Log.d(TAG, "Failed to get a location");
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+            AlarmReceiver.completeWakefulIntent(mIntent);
+        }
     }
 }
