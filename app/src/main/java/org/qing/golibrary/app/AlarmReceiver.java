@@ -35,9 +35,10 @@ public class AlarmReceiver extends WakefulBroadcastReceiver{
 
         Calendar calendar = getCalendarFromAlarm(alarm);
 
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(context, AlarmReceiver.class);
         PendingIntent alarmIntent = PendingIntent.getBroadcast(context, alarm.getId(), intent, 0);
+
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), alarmIntent);
 
         ComponentName receiver = new ComponentName(context, AlarmReceiver.class);
@@ -58,7 +59,10 @@ public class AlarmReceiver extends WakefulBroadcastReceiver{
     }
 
     public void cancelAlarm(Context context, Alarm alarm){
+        Intent intent = new Intent(context, AlarmReceiver.class);
+        PendingIntent alarmIntent = PendingIntent.getBroadcast(context, alarm.getId(), intent, 0);
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
+        alarmManager.cancel(alarmIntent);
     }
-
 }

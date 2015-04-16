@@ -13,6 +13,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
+import org.qing.golibrary.app.AlarmReceiver;
 import org.qing.golibrary.app.CreateAlarmActivity;
 import org.qing.golibrary.app.R;
 import org.qing.golibrary.app.database.Alarm;
@@ -79,9 +80,14 @@ public class ViewAlarmsFragment extends Fragment {
         adapter.notifyDataSetChanged();
     }
 
+    private void unscheduleAlarm(Alarm alarm) {
+        AlarmReceiver alarmReceiver = new AlarmReceiver();
+        alarmReceiver.cancelAlarm(getActivity().getApplicationContext(), alarm);
+    }
+
     /**
      * remove an alarm from the database
-     * @param id
+     * @param id id of the alarm
      */
     public void removeAlarm(int id){
         try{
@@ -136,6 +142,7 @@ public class ViewAlarmsFragment extends Fragment {
             holder.btnRemove.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    unscheduleAlarm(alarm);
                     removeAlarm(alarm.getId());
                 }
             });
@@ -151,4 +158,5 @@ public class ViewAlarmsFragment extends Fragment {
         }
 
     }
+
 }
