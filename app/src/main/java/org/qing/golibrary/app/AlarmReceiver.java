@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
+import org.qing.golibrary.app.database.Alarm;
 
 import java.util.Calendar;
 
@@ -16,10 +17,8 @@ import java.util.Calendar;
  * This is a wakeful receiver. The CPU is guaranteed to be awake until the wake lock is unlocked by the PunisherService
  */
 public class AlarmReceiver extends WakefulBroadcastReceiver{
-    private AlarmManager alarmManager;
-    private PendingIntent alarmIntent;
 
-    private final String TAG = "AlarmReceiver";
+    private static final String TAG = "AlarmReceiver";
 
     public AlarmReceiver() {
     }
@@ -31,12 +30,15 @@ public class AlarmReceiver extends WakefulBroadcastReceiver{
         startWakefulService(context, service);
     }
 
-    public void setAlarm(Context context, Calendar time){
-        alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(context, AlarmReceiver.class);
-        alarmIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
+    public void setAlarm(Context context, Alarm alarm){
+        Log.d(TAG, "Setting alarm" + alarm.getId());
 
-        alarmManager.set(AlarmManager.RTC_WAKEUP, time.getTimeInMillis(), alarmIntent);
+        Calendar calendar = getCalendarFromAlarm(alarm);
+
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(context, AlarmReceiver.class);
+        PendingIntent alarmIntent = PendingIntent.getBroadcast(context, alarm.getId(), intent, 0);
+        alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), alarmIntent);
 
         ComponentName receiver = new ComponentName(context, AlarmReceiver.class);
         PackageManager pm = context.getPackageManager();
@@ -44,6 +46,19 @@ public class AlarmReceiver extends WakefulBroadcastReceiver{
         pm.setComponentEnabledSetting(receiver,
                 PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
                 PackageManager.DONT_KILL_APP);
+    }
+
+    private Calendar getCalendarFromAlarm(Alarm alarm) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(alarm.getStartDate());
+        calendar.set(Calendar.HOUR_OF_DAY, alarm.getHour());
+        calendar.set(Calendar.MINUTE, alarm.getMinute());
+        calendar.set(Calendar.SECOND, 0);
+        return calendar;
+    }
+
+    public void cancelAlarm(Context context, Alarm alarm){
 
     }
+
 }

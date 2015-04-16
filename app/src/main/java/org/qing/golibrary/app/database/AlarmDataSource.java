@@ -21,7 +21,7 @@ public class AlarmDataSource {
     private static final String TABLENAME = "alarms";
     private static final String TAG = "AlarmDataSource";
     private static final String[] COLUMNS = {"alarm_id", "hour", "minute", "description", "repeat_mon",  "repeat_tue",  "repeat_wed",
-            "repeat_thr",  "repeat_fri",  "repeat_sat",  "repeat_sun", "end_date"};
+            "repeat_thr",  "repeat_fri",  "repeat_sat",  "repeat_sun", "start_date", "end_date"};
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 
     public AlarmDataSource(Context context) {
@@ -44,7 +44,7 @@ public class AlarmDataSource {
      * Inserting an alarm into the database, id is auto incremented
      * @param alarm an alarm
      */
-    public void createAlarm(Alarm alarm) {
+    public int createAlarm(Alarm alarm) {
         ContentValues values = new ContentValues();
         values.put("description", alarm.getDescription());
         values.put("hour", alarm.getHour());
@@ -56,8 +56,10 @@ public class AlarmDataSource {
         values.put("repeat_fri", alarm.isDayRepeat(DayInWeek.FRIDAY));
         values.put("repeat_sat", alarm.isDayRepeat(DayInWeek.SATURDAY));
         values.put("repeat_sun", alarm.isDayRepeat(DayInWeek.SUNDAY));
+        values.put("start_date", dateFormat.format(alarm.getStartDate()));
         values.put("end_date", dateFormat.format(alarm.getEndDate()));
-        database.insert(TABLENAME, null, values);  // don't the the null time hack lol
+        long id = database.insert(TABLENAME, null, values);  // don't the the null time hack lol
+        return (int) id;
     }
 
     /**
@@ -84,7 +86,8 @@ public class AlarmDataSource {
             alarm.setDayRepeat(DayInWeek.SATURDAY, cursor.getInt(9) > 0);
             alarm.setDayRepeat(DayInWeek.SUNDAY, cursor.getInt(10) > 0);
             try {
-                alarm.setEndDate(dateFormat.parse(cursor.getString(11)));
+                alarm.setStartDate(dateFormat.parse(cursor.getString(11)));
+                alarm.setEndDate(dateFormat.parse(cursor.getString(12)));
             } catch (ParseException e) {
                 Log.d(TAG, e.getMessage());
                 e.printStackTrace();

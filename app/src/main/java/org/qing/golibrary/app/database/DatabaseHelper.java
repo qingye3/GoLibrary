@@ -8,7 +8,7 @@ import android.util.Log;
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "go_library.db";
     private static final String TAG = "SQLiteHelper";
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -34,6 +34,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         "repeat_fri boolean," +
                         "repeat_sat boolean," +
                         "repeat_sun boolean," +
+                        "start_date text," +
                         "end_date text);";
         db.execSQL(createAlarmTable);
 

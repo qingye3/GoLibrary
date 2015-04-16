@@ -13,6 +13,7 @@ public class Alarm {
     private HashMap<DayInWeek, Boolean> repeatDays;
     private String description;
     private Date endDate;
+    private Date startDate;
 
     public Alarm() {
         repeatDays = new HashMap<DayInWeek, Boolean>();
@@ -80,5 +81,13 @@ public class Alarm {
             retStr = "No repeats";
         }
         return retStr;
+    }
+
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
     }
 }

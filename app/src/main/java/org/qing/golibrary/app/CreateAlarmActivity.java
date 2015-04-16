@@ -89,7 +89,7 @@ public class CreateAlarmActivity extends ActionBarActivity implements
      */
     private void initTextFields() {
         SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-        txtTime.setText(String.format("%02d:%02d",alarm.getHour() ,alarm.getMinute()));
+        txtTime.setText(String.format("%02d:%02d", alarm.getHour(), alarm.getMinute()));
         txtRepeat.setText(alarm.getRepeatString());
         txtEndDate.setText(dateFormat.format(alarm.getEndDate()));
     }
@@ -120,10 +120,10 @@ public class CreateAlarmActivity extends ActionBarActivity implements
         int id = item.getItemId();
         switch (id){
             case R.id.action_accept:
-                EditText editText = (EditText) findViewById(R.id.description);
-                alarm.setDescription(editText.getText().toString());
+                setAlarmDescription();
+                setAlarmStartDate();
                 saveAlarm();
-                setupAlarmManager();
+                scheduleAlarm();
                 finish();
                 break;
             case R.id.action_cancel:
@@ -133,13 +133,19 @@ public class CreateAlarmActivity extends ActionBarActivity implements
         return super.onOptionsItemSelected(item);
     }
 
-    private void setupAlarmManager() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(System.currentTimeMillis());
-        calendar.set(Calendar.HOUR_OF_DAY, alarm.getHour());
-        calendar.set(Calendar.MINUTE, alarm.getMinute());
-        calendar.set(Calendar.SECOND, 0);
-        alarmReceiver.setAlarm(this, calendar);
+    private void setAlarmDescription() {
+        EditText editText = (EditText) findViewById(R.id.description);
+        alarm.setDescription(editText.getText().toString());
+    }
+
+    private void setAlarmStartDate() {
+        Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(System.currentTimeMillis());
+        alarm.setStartDate(c.getTime());
+    }
+
+    private void scheduleAlarm() {
+        alarmReceiver.setAlarm(this, alarm);
     }
 
     /**
@@ -152,7 +158,8 @@ public class CreateAlarmActivity extends ActionBarActivity implements
         } catch (SQLException e){
             Log.d(TAG, e.getMessage());
         }
-        alarmDataSource.createAlarm(alarm);
+        int id = alarmDataSource.createAlarm(alarm);
+        alarm.setId(id);
         alarmDataSource.close();
     }
 
