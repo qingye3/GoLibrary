@@ -67,7 +67,6 @@ public class PunisherService extends IntentService implements
         mLocationRequest.setInterval(2000);
         mLocationRequest.setFastestInterval(2000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-
     }
 
     private void sendNotification(String title, String message) {
@@ -84,8 +83,6 @@ public class PunisherService extends IntentService implements
                         .setContentText(message);
         builder.setContentIntent(contentIntent);
         notificationManager.notify(1, builder.build());
-    }
-    protected synchronized void buildGoogleApiClient(){
     }
 
     @Override
@@ -123,7 +120,7 @@ public class PunisherService extends IntentService implements
                 }
             }
 
-            if (minDist < 120){
+            if (minDist < 85){
                 sendNotification("I will not punish you!", "Nearest library is " + minDist + " meters away.");
             } else {
                 sendNotification("You will be punished!", "Nearest library is " + minDist + " meters away.");
