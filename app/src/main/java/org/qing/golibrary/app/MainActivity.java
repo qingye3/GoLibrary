@@ -1,15 +1,29 @@
 package org.qing.golibrary.app;
 
+import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
+import com.facebook.login.LoginManager;
+import com.facebook.login.LoginResult;
 import org.qing.golibrary.app.database.AlarmDataSource;
 import org.qing.golibrary.app.fragments.ViewAlarmsFragment;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
+import java.util.Arrays;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -19,6 +33,10 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        logKeyHash();
+        FacebookSdk.sdkInitialize(getApplicationContext());
+        LoginManager.getInstance().logInWithPublishPermissions(this, Arrays.asList("publish_actions"));
+        // Application code
         alarmDataSource = new AlarmDataSource(MainActivity.this);
         try{
             alarmDataSource.open();
@@ -27,9 +45,25 @@ public class MainActivity extends ActionBarActivity {
         }
         setContentView(R.layout.activity_main);
         if (savedInstanceState == null) {
-            getFragmentManager().beginTransaction()
+            getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, new ViewAlarmsFragment())
                     .commit();
+        }
+    }
+
+    //Method found on facebook developer site to log a key hash
+    private void logKeyHash() {
+        try {
+            PackageInfo info = getPackageManager().getPackageInfo(
+                    "org.qing.golibrary.app",
+                    PackageManager.GET_SIGNATURES);
+            for (Signature signature : info.signatures) {
+                MessageDigest md = MessageDigest.getInstance("SHA");
+                md.update(signature.toByteArray());
+                Log.d("KeyHash:", Base64.encodeToString(md.digest(), Base64.DEFAULT));
+            }
+        } catch (PackageManager.NameNotFoundException ignored) {
+        } catch (NoSuchAlgorithmException ignored) {
         }
     }
 

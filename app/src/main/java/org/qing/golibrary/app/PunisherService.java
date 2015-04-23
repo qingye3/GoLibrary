@@ -5,17 +5,23 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInstaller;
 import android.location.Location;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import com.facebook.AccessToken;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -124,6 +130,7 @@ public class PunisherService extends IntentService implements
                 sendNotification("I will not punish you!", "Nearest library is " + minDist + " meters away.");
             } else {
                 sendNotification("You will be punished!", "Nearest library is " + minDist + " meters away.");
+                punish();
             }
         } else {
             Log.d(TAG, "Failed to get a location");
@@ -134,5 +141,28 @@ public class PunisherService extends IntentService implements
 
         //Release the lock so the receiver can go to sleep now
         AlarmReceiver.completeWakefulIntent(mIntent);
+    }
+
+    private void punish() {
+        AccessToken token = AccessToken.getCurrentAccessToken();
+        JSONObject graphObj = new JSONObject();
+        try {
+            graphObj.put("message", "test message from sdk");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        GraphRequest request = GraphRequest.newPostRequest(
+                token,
+                token.getUserId() + "/feed",
+                graphObj,
+                new GraphRequest.Callback() {
+                    @Override
+                    public void onCompleted(GraphResponse graphResponse) {
+                        Log.i("PunishResponse:", graphResponse.getJSONObject().toString());
+
+                    }
+                }
+        );
+        request.executeAsync();
     }
 }

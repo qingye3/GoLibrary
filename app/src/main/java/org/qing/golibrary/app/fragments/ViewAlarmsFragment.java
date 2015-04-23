@@ -1,10 +1,10 @@
 package org.qing.golibrary.app.fragments;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +13,11 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
 import org.qing.golibrary.app.AlarmReceiver;
 import org.qing.golibrary.app.CreateAlarmActivity;
 import org.qing.golibrary.app.R;
@@ -43,7 +48,6 @@ public class ViewAlarmsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_alarms, container, false);
-
         ImageButton createAlarmButton = (ImageButton) rootView.findViewById(R.id.add_button);
         createAlarmButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -52,6 +56,7 @@ public class ViewAlarmsFragment extends Fragment {
                 startActivityForResult(intent, 0);
             }
         });
+
         datasource = new AlarmDataSource(this.getActivity().getApplicationContext());
 
         //creating the adapter and attach the listView to it
@@ -156,7 +161,6 @@ public class ViewAlarmsFragment extends Fragment {
             TextView txtDays;
             ImageButton btnRemove;
         }
-
     }
 
 }
