@@ -30,6 +30,9 @@ public class BootReceiver extends BroadcastReceiver {
         }
     }
 
+    /**
+     * Helper function to schedule all alarm
+     */
     private void scheduleAllAlarm(AlarmReceiver alarmReceiver) {
         AlarmDataSource alarmDataSource = new AlarmDataSource(mContext);
         try{

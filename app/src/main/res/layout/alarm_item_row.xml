@@ -7,7 +7,6 @@
 
     <TextView
         android:id="@+id/time_text"
-        android:text="time_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
@@ -17,7 +16,6 @@
 
     <TextView
         android:id="@+id/days_text"
-        android:text="days"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
@@ -34,5 +32,6 @@
         android:layout_alignParentTop="true"
         android:src="@drawable/ic_action_delete"
         android:tint="@android:color/white"
-        android:background="@drawable/square" />
+        android:background="@drawable/square"
+        android:contentDescription="@string/remove"/>
 </RelativeLayout>

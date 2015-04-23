@@ -1,5 +1,7 @@
 package org.qing.golibrary.app;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -17,41 +19,94 @@ import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
-import org.qing.golibrary.app.database.AlarmDataSource;
 import org.qing.golibrary.app.fragments.ViewAlarmsFragment;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.sql.SQLException;
 import java.util.Arrays;
 
 
 public class MainActivity extends ActionBarActivity {
     private static final String TAG = "MainActivity";
-    private AlarmDataSource alarmDataSource;
+    private LoginManager loginManager;
+    private CallbackManager callbackManager;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         logKeyHash();
-        FacebookSdk.sdkInitialize(getApplicationContext());
-        LoginManager.getInstance().logInWithPublishPermissions(this, Arrays.asList("publish_actions"));
-        // Application code
-        alarmDataSource = new AlarmDataSource(MainActivity.this);
-        try{
-            alarmDataSource.open();
-        } catch (SQLException e){
-            Log.d(TAG, e.getMessage());
-        }
+
+        //View is not rendered until login succeeded
+        prepareFacebookSDK(savedInstanceState);
+        login();
         setContentView(R.layout.activity_main);
-        if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new ViewAlarmsFragment())
-                    .commit();
-        }
     }
 
-    //Method found on facebook developer site to log a key hash
+
+    /**
+     * Prepare loginManager and callbackManager to handle Facebook login
+     */
+    private void prepareFacebookSDK(final Bundle savedInstanceState) {
+        FacebookSdk.sdkInitialize(getApplicationContext());
+        loginManager = LoginManager.getInstance();
+        callbackManager = CallbackManager.Factory.create();
+
+        loginManager.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+            //render the view if login succeeded
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+                if (savedInstanceState == null) {
+                    getSupportFragmentManager().beginTransaction()
+                            .add(R.id.container, new ViewAlarmsFragment())
+                            .commit();
+                }
+            }
+
+            //If the user cancelled the login or login failed the show a useful dialog
+            @Override
+            public void onCancel() {
+                showLoginFailedDialog();
+            }
+
+            @Override
+            public void onError(FacebookException e) {
+                showLoginFailedDialog();
+            }
+        });
+
+    }
+
+
+    private void showLoginFailedDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Cannot Log into Facebook");
+        builder.setMessage("You need to log into Facebook to use the App");
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                        System.exit(0);
+                    }
+                });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+
+    private void logout() {
+        loginManager.logOut();
+    }
+
+
+    private void login() {
+        loginManager.logInWithPublishPermissions(this, Arrays.asList("publish_actions"));
+    }
+
+
+    /**
+     *  Method found on facebook developer site to log a key hash in case I need to change signature of the app
+     */
     private void logKeyHash() {
         try {
             PackageInfo info = getPackageManager().getPackageInfo(
@@ -67,37 +122,59 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
+
+    /**
+     * AppEventsLogger creates helpful messages on developer dashboard
+     */
     @Override
     protected void onResume() {
         super.onResume();
         AppEventsLogger.activateApp(this);
     }
 
+
+    /**
+     * AppEventsLogger creates helpful messages on developer dashboard
+     */
     @Override
     protected void onPause() {
         super.onPause();
         AppEventsLogger.deactivateApp(this);
     }
 
+
+    /**
+     *  Create the option menu
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
+
+    /**
+     * Adding the login and logout function
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (id){
+            case R.id.action_logout:
+                logout();
+                break;
+            case R.id.action_login:
+                login();
+                break;
         }
-
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        callbackManager.onActivityResult(requestCode, resultCode, data);
+    }
+
 }

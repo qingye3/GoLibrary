@@ -5,7 +5,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageInstaller;
 import android.location.Location;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -24,6 +23,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class PunisherService extends IntentService implements
         GoogleApiClient.ConnectionCallbacks,
@@ -39,6 +39,9 @@ public class PunisherService extends IntentService implements
         super("PunisherService");
     }
 
+    /**
+     * Upon handling the intent make a blocking call to get the current location
+     */
     @Override
     protected void onHandleIntent(Intent intent) {
         Log.d(TAG, "punisher service started");
@@ -53,6 +56,9 @@ public class PunisherService extends IntentService implements
         mGoogleApiClient.blockingConnect();
     }
 
+    /**
+     * Initialize the library locations
+     */
     private void createLibraryLocations() {
         libraryLocations = new ArrayList<Location>();
         Location location = new Location("map");
@@ -63,11 +69,14 @@ public class PunisherService extends IntentService implements
         libraryLocations.add(location);
 
         //Siebel Center
-        location.setLatitude(40.113877);
-        location.setLongitude(-88.224886);
-        libraryLocations.add(location);
+        //location.setLatitude(40.113877);
+        //location.setLongitude(-88.224886);
+        //libraryLocations.add(location);
     }
 
+    /**
+     * Check the location every 2 seconds
+     */
     private void createLocationRequest() {
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(2000);
@@ -75,6 +84,9 @@ public class PunisherService extends IntentService implements
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
+    /**
+     * Send a helpful message to the user if he is punished or not
+     */
     private void sendNotification(String title, String message) {
         NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0);
@@ -91,6 +103,9 @@ public class PunisherService extends IntentService implements
         notificationManager.notify(1, builder.build());
     }
 
+    /**
+     * implements the connection callback
+     */
     @Override
     public void onConnected(Bundle bundle) {
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
@@ -98,7 +113,6 @@ public class PunisherService extends IntentService implements
 
     @Override
     public void onConnectionSuspended(int i) {
-
     }
 
     @Override
@@ -127,9 +141,10 @@ public class PunisherService extends IntentService implements
             }
 
             if (minDist < 85){
-                sendNotification("I will not punish you!", "Nearest library is " + minDist + " meters away.");
+                sendNotification("I will not punish you!", "Nearest library was " + minDist + " meters away.");
             } else {
-                sendNotification("You will be punished!", "Nearest library is " + minDist + " meters away.");
+                sendNotification("It's punishment time!", "Nearest library was " + minDist + " meters away." +
+                                          "You are punished because you failed to attended the study session");
                 punish();
             }
         } else {
@@ -143,11 +158,15 @@ public class PunisherService extends IntentService implements
         AlarmReceiver.completeWakefulIntent(mIntent);
     }
 
+
+    /**
+     * Send the Facebook punishement message
+     */
     private void punish() {
         AccessToken token = AccessToken.getCurrentAccessToken();
         JSONObject graphObj = new JSONObject();
         try {
-            graphObj.put("message", "test message from sdk");
+            graphObj.put("message", getRandomPunishStatus());
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -164,5 +183,20 @@ public class PunisherService extends IntentService implements
                 }
         );
         request.executeAsync();
+    }
+
+
+    /**
+     *
+     * @return a punish message randomly picked
+     */
+    private String getRandomPunishStatus(){
+        ArrayList<String> statuses = new ArrayList<String>();
+        statuses.add("I love Justin Biber!");
+        statuses.add("I just kicked a five-year-old!");
+        statuses.add("Dear Professor, please flunk me cuz I can't study");
+        statuses.add("To those who reply to this status, I owe you 5 bucks.");
+        Random rand = new Random();
+        return statuses.get(rand.nextInt(statuses.size()));
     }
 }
