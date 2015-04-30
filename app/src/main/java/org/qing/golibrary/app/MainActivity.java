@@ -45,23 +45,41 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
     }
 
+    /**
+     * Show the welcome screen if it's the first time the app booted up or the app version is changed
+     * Will login after the welcome screen
+     */
     private void showSplashIfFirstBoot() {
         if (getSavedAppVersion() != appVersion) {
             saveCurrentAppVersion();
             showSplash();
+        } else {
+            //If not the first time opening the app, simply login
+            login();
         }
     }
 
+
+    /**
+     * Display the welcome screen
+     */
     private void showSplash() {
         Intent intent = new Intent(this, WelcomeActivity.class);
         startActivityForResult(intent, welcomeRequestCode);
     }
 
+    /**
+     * return the saved app version. If not found, default to 0
+     * App version is used to determine whether need to show the welcome screen or not
+     */
     private int getSavedAppVersion(){
         SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
         return sharedPref.getInt(getString(R.string.APPLICATION_VERSION), 0);
     }
 
+    /**
+     * Save the current app version
+     */
     private void saveCurrentAppVersion(){
         SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
