@@ -1,15 +1,43 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:context=".MainActivity$PlaceholderFragment">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              tools:context=".MainActivity$PlaceholderFragment">
 
-    <ListView
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/cancellation_left"
+        android:id="@+id/cancellation_text"
+        android:autoText="false"
+        android:background="@color/primary"
+        android:textColor="@color/abc_primary_text_material_dark"
+        android:paddingTop="15dp"
+        android:paddingBottom="10dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"/>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/divider_color">
+    </View>
+
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                 xmlns:tools="http://schemas.android.com/tools"
+                 android:layout_width="match_parent"
+                 android:layout_height="match_parent"
+                 tools:context=".MainActivity$PlaceholderFragment">
+
+        <ListView
             android:id="@+id/alarm_list"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent" />
-    
-    <ImageButton
+            android:layout_height="match_parent"
+            android:divider="@color/divider_color"
+            android:dividerHeight="1dp"/>
+
+        <ImageButton
             android:id="@+id/add_button"
             android:layout_width="@dimen/round_button_diameter"
             android:layout_height="@dimen/round_button_diameter"
@@ -21,4 +49,6 @@
             android:background="@drawable/oval"
             android:elevation="@dimen/elevation_low"
             />
-</FrameLayout>
+    </FrameLayout>
+
+</LinearLayout>

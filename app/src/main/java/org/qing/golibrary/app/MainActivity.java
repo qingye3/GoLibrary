@@ -9,6 +9,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Base64;
 import android.util.Log;
@@ -40,8 +41,8 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         logKeyHash();
-        showSplashIfFirstBoot();
         prepareFacebookSDK(savedInstanceState);
+        showSplashIfFirstBoot();
         setContentView(R.layout.activity_main);
     }
 
@@ -73,7 +74,7 @@ public class MainActivity extends ActionBarActivity {
      * App version is used to determine whether need to show the welcome screen or not
      */
     private int getSavedAppVersion(){
-        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         return sharedPref.getInt(getString(R.string.APPLICATION_VERSION), 0);
     }
 
@@ -81,7 +82,7 @@ public class MainActivity extends ActionBarActivity {
      * Save the current app version
      */
     private void saveCurrentAppVersion(){
-        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putInt(getString(R.string.APPLICATION_VERSION), appVersion);
         editor.apply();

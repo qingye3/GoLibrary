@@ -5,11 +5,15 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.Preference;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
@@ -29,15 +33,19 @@ public class PunisherService extends IntentService implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener{
+    public static final String PUNISHER_UPDATE = "org.qing.golibrary.app.PunisherService.UPDATE";
+
     private ArrayList<Location> libraryLocations;
     private static final String TAG = "PunisherSer";
     private GoogleApiClient mGoogleApiClient;
     private Intent mIntent;
     private LocationRequest mLocationRequest;
+    private LocalBroadcastManager broadcastManager;
 
     public PunisherService() {
         super("PunisherService");
     }
+
 
     /**
      * Upon handling the intent make a blocking call to get the current location
@@ -45,6 +53,8 @@ public class PunisherService extends IntentService implements
     @Override
     protected void onHandleIntent(Intent intent) {
         Log.d(TAG, "punisher service started");
+        broadcastManager = LocalBroadcastManager.getInstance(this);
+
         createLocationRequest();
         createLibraryLocations();
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -68,10 +78,23 @@ public class PunisherService extends IntentService implements
         location.setLongitude(-88.22687);
         libraryLocations.add(location);
 
+        //Main Library
+        location = new Location("map");
+        location.setLatitude(40.104784);
+        location.setLongitude(-88.228699);
+        libraryLocations.add(location);
+
+        //Lincoln Hall
+        location = new Location("map");
+        location.setLatitude(40.106574);
+        location.setLongitude(-88.228266);
+        libraryLocations.add(location);
+
         //Siebel Center
-        //location.setLatitude(40.113877);
-        //location.setLongitude(-88.224886);
-        //libraryLocations.add(location);
+        location = new Location("map");
+        location.setLatitude(40.113877);
+        location.setLongitude(-88.224886);
+        libraryLocations.add(location);
     }
 
     /**
@@ -127,10 +150,15 @@ public class PunisherService extends IntentService implements
     @Override
     public void onLocationChanged(Location location) {
         if (location!= null){
+            location.setAltitude(0);
             //Reject a location if the accuracy is less than 25 meter
             if (location.getAccuracy() > 25){
+                Log.i("LocationLat", String.valueOf(location.getLatitude()));
+                Log.i("LocationLon", String.valueOf(location.getLongitude()));
                 return;
             }
+            Log.i("LocationLat", String.valueOf(location.getLatitude()));
+            Log.i("LocationLon", String.valueOf(location.getLongitude()));
 
             //Calculate distance to the nearest library
             float minDist = Float.MAX_VALUE;
@@ -142,6 +170,7 @@ public class PunisherService extends IntentService implements
 
             if (minDist < 85){
                 sendNotification("I will not punish you!", "Nearest library was " + minDist + " meters away.");
+                reward();
             } else {
                 sendNotification("It's punishment time!", "Nearest library was " + minDist + " meters away." +
                                           "You are punished because you failed to attended the study session");
@@ -156,6 +185,17 @@ public class PunisherService extends IntentService implements
 
         //Release the lock so the receiver can go to sleep now
         AlarmReceiver.completeWakefulIntent(mIntent);
+    }
+
+    private void reward() {
+        incrementStreak();
+        if (getRewardStreak() >= 3){
+            saveRewardStreak(0);
+            incrementQuota();
+
+            Intent intent = new Intent(PUNISHER_UPDATE);
+            broadcastManager.sendBroadcast(intent);
+        }
     }
 
 
@@ -177,8 +217,9 @@ public class PunisherService extends IntentService implements
                 new GraphRequest.Callback() {
                     @Override
                     public void onCompleted(GraphResponse graphResponse) {
-                        Log.i("PunishResponse:", graphResponse.getJSONObject().toString());
-
+                        if (graphResponse != null && graphResponse.getJSONObject() != null){
+                            Log.i("PunishResponse:", graphResponse.getJSONObject().toString());
+                        }
                     }
                 }
         );
@@ -198,5 +239,39 @@ public class PunisherService extends IntentService implements
         statuses.add("To those who reply to this status, I owe you 5 bucks.");
         Random rand = new Random();
         return statuses.get(rand.nextInt(statuses.size()));
+    }
+
+    private int getRewardStreak() {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        return sharedPref.getInt(getString(R.string.CURRENT_STREAK), 0);
+    }
+
+    private void saveRewardStreak(int streak){
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putInt(getString(R.string.CURRENT_STREAK), streak);
+        editor.apply();
+    }
+
+    private void incrementStreak(){
+        saveRewardStreak(getRewardStreak() + 1);
+    }
+
+    private int getNumOfQuotas() {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        return sharedPref.getInt(getString(R.string.NUM_OF_QUOTAS), 1);
+    }
+
+    private void saveNumOfQuotas(int numOfQuotas) {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putInt(getString(R.string.NUM_OF_QUOTAS), numOfQuotas);
+        editor.apply();
+    }
+
+    private void incrementQuota(){
+        if (getNumOfQuotas() < 3){
+            saveNumOfQuotas(getNumOfQuotas() + 1);
+        }
     }
 }
