@@ -1,8 +1,10 @@
 package org.qing.golibrary.app;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
@@ -30,17 +32,41 @@ public class MainActivity extends ActionBarActivity {
     private static final String TAG = "MainActivity";
     private LoginManager loginManager;
     private CallbackManager callbackManager;
+    private final int appVersion = 2;
+    private final int welcomeRequestCode = 3;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         logKeyHash();
-
-        //View is not rendered until login succeeded
+        showSplashIfFirstBoot();
         prepareFacebookSDK(savedInstanceState);
-        login();
         setContentView(R.layout.activity_main);
+    }
+
+    private void showSplashIfFirstBoot() {
+        if (getSavedAppVersion() != appVersion) {
+            saveCurrentAppVersion();
+            showSplash();
+        }
+    }
+
+    private void showSplash() {
+        Intent intent = new Intent(this, WelcomeActivity.class);
+        startActivityForResult(intent, welcomeRequestCode);
+    }
+
+    private int getSavedAppVersion(){
+        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+        return sharedPref.getInt(getString(R.string.APPLICATION_VERSION), 0);
+    }
+
+    private void saveCurrentAppVersion(){
+        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putInt(getString(R.string.APPLICATION_VERSION), appVersion);
+        editor.apply();
     }
 
 
@@ -174,6 +200,10 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == welcomeRequestCode){
+            //View is not rendered until login succeeded
+            login();
+        }
         callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 

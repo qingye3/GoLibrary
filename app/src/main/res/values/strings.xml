@@ -21,4 +21,7 @@
     <string name="remove">remove</string>
     <string name="login">Login</string>
     <string name="logout">Logout</string>
+    <string name="APPLICATION_VERSION">ApplicationVersion</string>
+    <string name="background">background</string>
+    <string name="title_welcome_activity">Welcome</string>
 </resources>
