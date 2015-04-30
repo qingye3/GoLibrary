@@ -28,7 +28,6 @@ public class CreateAlarmActivity extends ActionBarActivity implements
         DatePickerFragment.OnDatePickedListener ,
         RepeatPickerFragment.OnRepeatPickedListener{
     private static final String TAG = "CreateAlarm";
-    private AlarmReceiver alarmReceiver;
     private Alarm alarm;
     TextView txtTime;
     TextView txtRepeat;
@@ -40,7 +39,6 @@ public class CreateAlarmActivity extends ActionBarActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_alarm);
 
-        alarmReceiver = new AlarmReceiver();
         txtTime = (TextView) findViewById(R.id.time);
         txtRepeat = (TextView) findViewById(R.id.repeat);
         txtEndDate = (TextView) findViewById(R.id.endDate);
@@ -136,13 +134,48 @@ public class CreateAlarmActivity extends ActionBarActivity implements
     }
 
     private void setAlarmStartDate() {
-        Calendar c = Calendar.getInstance();
-        c.setTimeInMillis(System.currentTimeMillis());
-        alarm.setStartDate(c.getTime());
+        Calendar startDate = Calendar.getInstance();
+        startDate.setTimeInMillis(System.currentTimeMillis());
+        startDate.set(Calendar.HOUR_OF_DAY, alarm.getHour());
+        startDate.set(Calendar.MINUTE, alarm.getMinute());
+
+        if (startDate.getTimeInMillis() < System.currentTimeMillis()){
+            if (!alarm.isRepeat()){
+                startDate.add(Calendar.DATE, 1);
+            } else {
+                for (int i = 0; i < 7 ; i++){
+                    startDate.add(Calendar.DATE, 1);
+                    if (alarm.isDayRepeat(calendarDayToMyDay(startDate.get(Calendar.DAY_OF_WEEK)))){
+                        break;
+                    }
+                }
+            }
+        }
+        alarm.setStartDate(startDate.getTime());
+    }
+
+    private DayInWeek calendarDayToMyDay(int calendarDay){
+        switch (calendarDay){
+            case Calendar.MONDAY:
+                return DayInWeek.MONDAY;
+            case Calendar.TUESDAY:
+                return DayInWeek.TUESDAY;
+            case Calendar.WEDNESDAY:
+                return DayInWeek.WEDNESDAY;
+            case Calendar.THURSDAY:
+                return DayInWeek.THURSDAY;
+            case Calendar.FRIDAY:
+                return DayInWeek.FRIDAY;
+            case Calendar.SATURDAY:
+                return DayInWeek.SATURDAY;
+            case Calendar.SUNDAY:
+                return DayInWeek.SUNDAY;
+        }
+        return null;
     }
 
     private void scheduleAlarm() {
-        alarmReceiver.setAlarm(this, alarm);
+        AlarmReceiver.setAlarm(this, alarm);
     }
 
     /**

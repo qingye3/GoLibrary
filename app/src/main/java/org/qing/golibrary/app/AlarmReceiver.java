@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
 import org.qing.golibrary.app.database.Alarm;
+import org.qing.golibrary.app.database.AlarmDataSource;
 
 import java.util.Calendar;
 
@@ -19,6 +20,7 @@ import java.util.Calendar;
 public class AlarmReceiver extends WakefulBroadcastReceiver{
 
     private static final String TAG = "AlarmReceiver";
+    public static final String ALARM_ID = "ALARM_ID";
 
     public AlarmReceiver() {
     }
@@ -30,19 +32,22 @@ public class AlarmReceiver extends WakefulBroadcastReceiver{
     public void onReceive(Context context, Intent intent) {
         Log.d(TAG, "Received alarm");
         Intent service = new Intent(context, PunisherService.class);
+        int alarmID = intent.getIntExtra(ALARM_ID, -1);
+        service.putExtra(ALARM_ID, alarmID);
         startWakefulService(context, service);
     }
 
     /**
      * Setting a RTC alarm using the alarm object
      */
-    public void setAlarm(Context context, Alarm alarm){
+    public static void setAlarm(Context context, Alarm alarm){
         Log.d(TAG, "Setting alarm" + alarm.getId());
 
         Calendar calendar = getCalendarFromAlarm(alarm);
 
         //Using the id of the alarm as the id of the RTC alarm
         Intent intent = new Intent(context, AlarmReceiver.class);
+        intent.putExtra(ALARM_ID, alarm.getId());
         PendingIntent alarmIntent = PendingIntent.getBroadcast(context, alarm.getId(), intent, 0);
 
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
@@ -58,7 +63,7 @@ public class AlarmReceiver extends WakefulBroadcastReceiver{
     /**
      * Convert the time of the alarm to a calendar object
      */
-    private Calendar getCalendarFromAlarm(Alarm alarm) {
+    public static Calendar getCalendarFromAlarm(Alarm alarm) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(alarm.getStartDate());
         calendar.set(Calendar.HOUR_OF_DAY, alarm.getHour());
@@ -70,11 +75,10 @@ public class AlarmReceiver extends WakefulBroadcastReceiver{
     /**
      * Cancel an alarm with matching alarm id
      */
-    public void cancelAlarm(Context context, Alarm alarm){
+    public static void cancelAlarm(Context context, Alarm alarm){
         Intent intent = new Intent(context, AlarmReceiver.class);
         PendingIntent alarmIntent = PendingIntent.getBroadcast(context, alarm.getId(), intent, 0);
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-
         alarmManager.cancel(alarmIntent);
     }
 }

@@ -50,6 +50,14 @@ public class Alarm {
         return repeatDays.get(day);
     }
 
+    public boolean isRepeat(){
+        boolean ret = false;
+        for (DayInWeek day : DayInWeek.values()){
+            ret = ret || repeatDays.get(day);
+        }
+        return ret;
+    }
+
     public void setDayRepeat(DayInWeek day, Boolean isRepeat){
         repeatDays.put(day, isRepeat);
     }

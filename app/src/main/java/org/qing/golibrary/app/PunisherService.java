@@ -25,8 +25,14 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.qing.golibrary.app.database.Alarm;
+import org.qing.golibrary.app.database.AlarmDataSource;
+import org.qing.golibrary.app.database.DayInWeek;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Random;
 
 public class PunisherService extends IntentService implements
@@ -41,6 +47,7 @@ public class PunisherService extends IntentService implements
     private Intent mIntent;
     private LocationRequest mLocationRequest;
     private LocalBroadcastManager broadcastManager;
+    private int alarmID;
 
     public PunisherService() {
         super("PunisherService");
@@ -53,6 +60,8 @@ public class PunisherService extends IntentService implements
     @Override
     protected void onHandleIntent(Intent intent) {
         Log.d(TAG, "punisher service started");
+        alarmID = intent.getIntExtra(AlarmReceiver.ALARM_ID, -1);
+        reschedule();
         broadcastManager = LocalBroadcastManager.getInstance(this);
 
         createLocationRequest();
@@ -64,6 +73,73 @@ public class PunisherService extends IntentService implements
                 .build();
         mIntent = intent;
         mGoogleApiClient.blockingConnect();
+    }
+
+    private void reschedule() {
+        AlarmDataSource datasource = new AlarmDataSource(this);
+        try {
+            datasource.open();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        if (alarmID != -1){
+            Alarm alarm = datasource.getAlarm(alarmID);
+            if (!alarm.isRepeat()){
+                datasource.removeAlarm(alarmID);
+                return;
+            }
+            Calendar alarmCalendar = AlarmReceiver.getCalendarFromAlarm(alarm);
+            for (int i = 0; i < 7; i++){
+                alarmCalendar.add(Calendar.DATE, 1);
+                if (alarm.isDayRepeat(calendarDayToMyDay(alarmCalendar.get(Calendar.DAY_OF_WEEK)))){
+                    Date endTime = getFinalSecond(alarm.getEndDate());
+                    if (endTime.after(alarmCalendar.getTime())){
+                        setAlarmToCalendar(alarmCalendar, alarm);
+                        datasource.updateAlarm(alarm);
+                        AlarmReceiver.setAlarm(this, alarm);
+                        return;
+                    }
+                }
+            }
+            datasource.removeAlarm(alarmID);
+        }
+    }
+
+    private void setAlarmToCalendar(Calendar alarmCalendar, Alarm alarm) {
+        alarm.setStartDate(alarmCalendar.getTime());
+        alarm.setHour(alarmCalendar.get(Calendar.HOUR_OF_DAY));
+        alarm.setMinute(alarmCalendar.get(Calendar.MINUTE));
+    }
+
+
+    private DayInWeek calendarDayToMyDay(int calendarDay){
+        switch (calendarDay){
+            case Calendar.MONDAY:
+                return DayInWeek.MONDAY;
+            case Calendar.TUESDAY:
+                return DayInWeek.TUESDAY;
+            case Calendar.WEDNESDAY:
+                return DayInWeek.WEDNESDAY;
+            case Calendar.THURSDAY:
+                return DayInWeek.THURSDAY;
+            case Calendar.FRIDAY:
+                return DayInWeek.FRIDAY;
+            case Calendar.SATURDAY:
+                return DayInWeek.SATURDAY;
+            case Calendar.SUNDAY:
+                return DayInWeek.SUNDAY;
+        }
+        return null;
+    }
+
+    private Date getFinalSecond(Date endDate) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(endDate);
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+        return calendar.getTime();
     }
 
     /**
