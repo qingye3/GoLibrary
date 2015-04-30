@@ -133,6 +133,9 @@ public class CreateAlarmActivity extends ActionBarActivity implements
         alarm.setDescription(editText.getText().toString());
     }
 
+    /**
+     * Setting start date using the alarm
+     */
     private void setAlarmStartDate() {
         Calendar startDate = Calendar.getInstance();
         startDate.setTimeInMillis(System.currentTimeMillis());

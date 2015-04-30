@@ -10,7 +10,6 @@ import android.location.Location;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
@@ -75,6 +74,9 @@ public class PunisherService extends IntentService implements
         mGoogleApiClient.blockingConnect();
     }
 
+    /**
+     * Reschedule if the alarm is a repeating alarm
+     */
     private void reschedule() {
         AlarmDataSource datasource = new AlarmDataSource(this);
         try {
@@ -87,6 +89,8 @@ public class PunisherService extends IntentService implements
             Alarm alarm = datasource.getAlarm(alarmID);
             if (!alarm.isRepeat()){
                 datasource.removeAlarm(alarmID);
+                Intent intent = new Intent(PUNISHER_UPDATE);
+                broadcastManager.sendBroadcast(intent);
                 return;
             }
             Calendar alarmCalendar = AlarmReceiver.getCalendarFromAlarm(alarm);
@@ -103,9 +107,14 @@ public class PunisherService extends IntentService implements
                 }
             }
             datasource.removeAlarm(alarmID);
+            Intent intent = new Intent(PUNISHER_UPDATE);
+            broadcastManager.sendBroadcast(intent);
         }
     }
 
+    /**
+     * Set the alarm time to the calendar time
+     */
     private void setAlarmToCalendar(Calendar alarmCalendar, Alarm alarm) {
         alarm.setStartDate(alarmCalendar.getTime());
         alarm.setHour(alarmCalendar.get(Calendar.HOUR_OF_DAY));
@@ -113,6 +122,9 @@ public class PunisherService extends IntentService implements
     }
 
 
+    /**
+     * Parse an integer day to my Enum DayInWeek type
+     */
     private DayInWeek calendarDayToMyDay(int calendarDay){
         switch (calendarDay){
             case Calendar.MONDAY:
@@ -133,6 +145,9 @@ public class PunisherService extends IntentService implements
         return null;
     }
 
+    /**
+     * Get the last second of the day
+     */
     private Date getFinalSecond(Date endDate) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(endDate);
@@ -251,6 +266,7 @@ public class PunisherService extends IntentService implements
                 sendNotification("It's punishment time!", "Nearest library was " + minDist + " meters away." +
                                           "You are punished because you failed to attended the study session");
                 punish();
+                saveRewardStreak(0);
             }
         } else {
             Log.d(TAG, "Failed to get a location");
@@ -276,7 +292,7 @@ public class PunisherService extends IntentService implements
 
 
     /**
-     * Send the Facebook punishement message
+     * Send the Facebook punishment message
      */
     private void punish() {
         AccessToken token = AccessToken.getCurrentAccessToken();
@@ -317,6 +333,9 @@ public class PunisherService extends IntentService implements
         return statuses.get(rand.nextInt(statuses.size()));
     }
 
+    /**
+     * Streak is consecutive attending the study session
+     */
     private int getRewardStreak() {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         return sharedPref.getInt(getString(R.string.CURRENT_STREAK), 0);
@@ -329,6 +348,9 @@ public class PunisherService extends IntentService implements
         editor.apply();
     }
 
+    /**
+     * increment the streak by one
+     */
     private void incrementStreak(){
         saveRewardStreak(getRewardStreak() + 1);
     }
@@ -338,6 +360,9 @@ public class PunisherService extends IntentService implements
         return sharedPref.getInt(getString(R.string.NUM_OF_QUOTAS), 1);
     }
 
+    /**
+     * save number of quotas
+     */
     private void saveNumOfQuotas(int numOfQuotas) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         SharedPreferences.Editor editor = sharedPref.edit();
@@ -345,6 +370,9 @@ public class PunisherService extends IntentService implements
         editor.apply();
     }
 
+    /**
+     * increment the number of quota by 1
+     */
     private void incrementQuota(){
         if (getNumOfQuotas() < 3){
             saveNumOfQuotas(getNumOfQuotas() + 1);

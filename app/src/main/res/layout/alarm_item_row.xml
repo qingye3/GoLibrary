@@ -7,6 +7,7 @@
 
     <TextView
         android:id="@+id/time_text"
+        android:text="TIME"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
@@ -16,6 +17,7 @@
 
     <TextView
         android:id="@+id/days_text"
+        android:text="DAY"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
@@ -34,4 +36,14 @@
         android:tint="@android:color/white"
         android:background="@drawable/square"
         android:contentDescription="@string/remove"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Medium Text"
+        android:id="@+id/description_text"
+        android:layout_alignBottom="@+id/time_text"
+        android:layout_toEndOf="@+id/time_text"
+        android:paddingLeft="20dp"/>
 </RelativeLayout>

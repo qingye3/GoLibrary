@@ -15,11 +15,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
-import com.facebook.CallbackManager;
-import com.facebook.FacebookCallback;
-import com.facebook.FacebookException;
-import com.facebook.login.LoginResult;
-import com.facebook.login.widget.LoginButton;
 import org.qing.golibrary.app.AlarmReceiver;
 import org.qing.golibrary.app.CreateAlarmActivity;
 import org.qing.golibrary.app.PunisherService;
@@ -28,7 +23,9 @@ import org.qing.golibrary.app.database.Alarm;
 import org.qing.golibrary.app.database.AlarmDataSource;
 
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class ViewAlarmsFragment extends Fragment {
     private static final String TAG = "AlarmFragment";
@@ -127,8 +124,7 @@ public class ViewAlarmsFragment extends Fragment {
     }
 
     private void unscheduleAlarm(Alarm alarm) {
-        AlarmReceiver alarmReceiver = new AlarmReceiver();
-        alarmReceiver.cancelAlarm(getActivity().getApplicationContext(), alarm);
+        AlarmReceiver.cancelAlarm(getActivity().getApplicationContext(), alarm);
     }
 
     /**
@@ -176,6 +172,7 @@ public class ViewAlarmsFragment extends Fragment {
                 holder = new AlarmHolder();
                 holder.txtDays = (TextView)row.findViewById(R.id.days_text);
                 holder.txtTime = (TextView)row.findViewById(R.id.time_text);
+                holder.txtDescription = (TextView)row.findViewById(R.id.description_text);
                 holder.btnRemove = (ImageButton) row.findViewById(R.id.remove_button);
                 row.setTag(holder);
             }
@@ -183,7 +180,6 @@ public class ViewAlarmsFragment extends Fragment {
             {
                 holder = (AlarmHolder)row.getTag();
             }
-
             final Alarm alarm = getItem(position);
             holder.btnRemove.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -192,13 +188,24 @@ public class ViewAlarmsFragment extends Fragment {
                 }
             });
             holder.txtTime.setText(String.format("%02d:%02d", alarm.getHour(), alarm.getMinute()));
-            holder.txtDays.setText(alarm.getRepeatString());
+            holder.txtDays.setText(alarm.getRepeatString() + getEndsString(alarm));
+            holder.txtDescription.setText(alarm.getDescription());
             return row;
+        }
+
+        private String getEndsString(Alarm alarm) {
+            if (alarm.isRepeat()){
+                SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+                return " Ends on: " + dateFormat.format(alarm.getEndDate());
+            } else {
+                return "";
+            }
         }
 
         class AlarmHolder{
             TextView txtTime;
             TextView txtDays;
+            TextView txtDescription;
             ImageButton btnRemove;
         }
     }
